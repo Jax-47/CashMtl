@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CashMTL - Les Mystères Souterrains de Montréal – 1er prix 25 000$</title>
+<style>
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: #eee; margin: 0; padding: 0; }
+header { text-align: center; padding: 50px 20px; background: linear-gradient(135deg, #2b2b2b, #121212); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+header h1 { margin: 0; font-size: 2em; font-weight: bold; color: #fff; }
+header p { margin-top: 10px; font-size: 1.1em; color: #ccc; }
+main { max-width: 700px; margin: 40px auto; padding: 0 20px; }
+section { margin-bottom: 40px; }
+ul { margin-left: 20px; }
+form { display: flex; flex-direction: column; align-items: center; }
+input, button { padding: 12px; margin: 8px 0; width: 100%; max-width: 300px; border: none; border-radius: 6px; }
+input { background: #2b2b2b; color: #fff; }
+button { background: #444; color: #fff; cursor: pointer; transition: 0.3s; }
+button:hover { background: #555; }
+#share-section { display: none; margin-top: 30px; }
+.subscribe-buttons { display: flex; justify-content: center; margin-top: 15px; gap: 10px; }
+.subscribe-buttons button { width: auto; padding: 10px 15px; }
+strong.red { color: red; }
+</style>
+</head>
+<body>
+
+<header>
+<h1>CashMTL – Les Mystères Souterrains de Montréal – 1er prix 25 000$ !</h1>
+<p>Participez à la chasse au trésor et découvrez les secrets cachés de Montréal.</p>
+</header>
+
+<main>
+<section>
+<h2>Détails du concours :</h2>
+<ul>
+<li>Thématique : Catacombes et secrets de Montréal</li>
+<li>L’énigme finale : trouvez les catacombes de Montréal</li>
+<li>Inscription gratuite pour recevoir la première énigme</li>
+<li>Abonnement obligatoire à la chaîne YouTube, page Facebook et groupe Telegram pour débloquer la première énigme</li>
+<li><strong class="red">Toutes les réponses aux énigmes seront envoyées exclusivement via Telegram</strong></li>
+<li>Récompenses :</li>
+<ul>
+  <li><strong>Top 1 :</strong> 25 000$ + cadeau mystère (1 personne)</li>
+  <li><strong>Top 2 :</strong> 1 000$ (25 personnes)</li>
+  <li><strong>Top 3 :</strong> 100$ (100 personnes)</li>
+</ul>
+</ul>
+</section>
+
+<!-- Formulaire d'inscription -->
+<form id="registrationForm">
+  <input type="text" id="name" placeholder="Nom complet" required>
+  <input type="email" id="email" placeholder="Email" required>
+  <input type="tel" id="phone" placeholder="Numéro de téléphone" required>
+  <input type="text" id="telegram" placeholder="Nom utilisateur Telegram (ex: @username)" required>
+  <button type="submit">S'inscrire</button>
+</form>
+
+<!-- Section abonnements après inscription -->
+<div id="share-section">
+  <h2>Abonnez-vous pour débloquer la première énigme</h2>
+  <p>Vous devez :</p>
+  <ul>
+    <li>S’abonner à notre chaîne YouTube</li>
+    <li>Rejoindre notre page Facebook</li>
+    <li>Rejoindre notre groupe Telegram</li>
+  </ul>
+
+  <div class="subscribe-buttons">
+    <button type="button" id="subscribeYT">S'abonner à YouTube</button>
+    <button type="button" id="subscribeFB">Rejoindre la page Facebook</button>
+    <button type="button" id="subscribeTG">Rejoindre le groupe Telegram</button>
+  </div>
+
+  <!-- Bouton Telegram pour démarrer le bot -->
+  <div id="bot-button" style="margin-top:20px; display:none;">
+    <p>Pour recevoir l'énigme, démarrez une conversation avec notre bot Telegram :</p>
+    <a href="https://t.me/cashmtlbot" target="_blank">
+      <button type="button">Démarrer le bot Telegram</button>
+    </a>
+  </div>
+
+  <p id="ytStatus">Statut abonnement YouTube : non confirmé</p>
+  <p id="fbStatus">Statut page Facebook : non confirmé</p>
+  <p id="tgStatus">Statut groupe Telegram : non confirmé</p>
+
+  <button id="finish-btn">Finaliser et débloquer l’énigme</button>
+</div>
+
+</main>
+
+<script>
+let ytSubscribed = false;
+let fbSubscribed = false;
+let tgSubscribed = false;
+
+const TELEGRAM_TOKEN = "8328974948:AAFQXi0TLcdoPd3OVRvVPlQOkUk9L0pt2w8";
+// ✅ Corrigé : URL en /exec
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGuJL37czcJqFpAkvUv8EqBcPyG1UACBTXe25U65A/exec";
+
+const form = document.getElementById('registrationForm');
+const shareSection = document.getElementById('share-section');
+const finishBtn = document.getElementById('finish-btn');
+const botButton = document.getElementById('bot-button');
+botButton.style.display = 'none';
+
+// Soumission formulaire
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const data = {
+    nom: document.getElementById('name').value,
+    email: document.getElementById('email').value,
+    telephone: document.getElementById('phone').value,
+    telegram: document.getElementById('telegram').value
+  };
+
+  fetch(GOOGLE_SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" }
+  })
+  .then(res => res.text())
+  .then(txt => {
+    console.log("Réponse du serveur:", txt);
+    alert("✅ Inscription enregistrée dans Google Sheet !");
+    form.style.display = 'none';
+    shareSection.style.display = 'block';
+  })
+  .catch(err => {
+    console.error("Erreur:", err);
+    alert("⚠️ Problème lors de l’enregistrement. Vérifie ton Apps Script.");
+  });
+});
+
+// Boutons abonnements
+document.getElementById('subscribeYT').addEventListener('click', () => {
+  window.open("https://www.youtube.com/channel/TON_ID_DE_CHAINE",'_blank');
+  ytSubscribed = true;
+  document.getElementById('ytStatus').textContent = "Statut abonnement YouTube : supposé confirmé";
+  checkSubscriptions();
+});
+
+document.getElementById('subscribeFB').addEventListener('click', () => {
+  window.open("https://www.facebook.com/TON_ID_PAGE",'_blank');
+  fbSubscribed = true;
+  document.getElementById('fbStatus').textContent = "Statut page Facebook : supposé confirmé";
+  checkSubscriptions();
+});
+
+document.getElementById('subscribeTG').addEventListener('click', () => {
+  window.open("https://t.me/TON_GROUPE_TG",'_blank');
+  tgSubscribed = true;
+  document.getElementById('tgStatus').textContent = "Statut groupe Telegram : supposé confirmé";
+  checkSubscriptions();
+});
+
+// Vérifie si les trois abonnements sont faits
+function checkSubscriptions(){
+  if(ytSubscribed && fbSubscribed && tgSubscribed){
+    botButton.style.display = 'block'; 
+  }
+}
+
+// Finaliser inscription
+finishBtn.addEventListener('click', () => {
+  if(!ytSubscribed || !fbSubscribed || !tgSubscribed){
+    alert("Vous devez compléter tous les abonnements pour débloquer l'énigme !");
+    return;
+  }
+  
+  const telegramUser = document.getElementById('telegram').value;
+  sendTelegramEnigme(telegramUser);
+  
+  alert("Toutes les conditions remplies ! Vous avez reçu l'énigme sur Telegram.");
+});
+
+// Envoi énigme via Telegram
+function sendTelegramEnigme(telegramUser){
+  fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: telegramUser, 
+      text: "🎯 Félicitations ! Voici votre première énigme : [réponse ici]"
+    })
+  })
+  .then(res => res.json())
+  .then(data => console.log("Énigme envoyée :", data))
+  .catch(err => console.error("Erreur envoi Telegram :", err));
+}
+</script>
+
+</body>
+</html>
